@@ -91,6 +91,20 @@ public class SystemVersionProperties {
                     result = inputLine.replace("[" + item + "]: ", "");
                     result = result.replace("[", "");
                     result = result.replace("]", "");
+
+                    // @hack #1: OxygenOS 1.0.0 - 3.x sometimes contain incorrect H2OS values for ro.rom.version
+                    // if this is the case, discard the value and try with the next item in "items" array
+                    if (result.contains("H2OS")) {
+                        result = NO_OXYGEN_OS;
+                        continue;
+                    }
+
+                    // @hack #2: OnePlus 7 and later store hardcoded "Oxygen OS " in their version number of the firmware.
+                    // As the app only shows the number or ads custom formatting, remove this prefix
+                    if (result.contains("Oxygen OS ")) {
+                        result = result.replace("Oxygen OS ", "");
+                    }
+
                     if(logText != null) Logger.logVerbose(TAG, String.format(logText, result));
                     return result; // Return the first successfully detected item. This because some keys have multiple values which all exist in the same properties file.
                 }
